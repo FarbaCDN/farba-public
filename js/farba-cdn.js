@@ -4,12 +4,14 @@ function change_url() {
   var images = document.getElementsByClassName("farba");
 
   for(var i = 0; i < images.length; i++) {
-    if (images[i].dataset.src.startsWith("./gallery/image.php") ||            //random image
-        images[i].dataset.src.startsWith("./download/file.php?avatar=") ||    //avatar
-        images[i].dataset.src.startsWith("./images/avatars")) {               //avatar
+    postfix = images[i].dataset.src.replace(/^\.{1,2}\//, "/");    //strip . and ..
+
+    if (postfix.startsWith("/gallery/image.php") ||            //random image
+        postfix.startsWith("/download/file.php?avatar=") ||    //avatar
+        postfix.startsWith("/images/avatars")) {               //avatar
 
       images[i].addEventListener("error", cdn_error);
-      images[i].src = "http://farba.io/u?" + window.location.origin + images[i].dataset.src.slice(1, ); //strip dot
+      images[i].src = "http://farba.io/u?" + window.location.origin + postfix;
     } else {
       images[i].src = images[i].dataset.src;
     }
