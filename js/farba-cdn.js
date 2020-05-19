@@ -21,7 +21,7 @@ function change_url() {
 function cdn_error() {
   this.removeEventListener("error", cdn_error);
 
-  var cdnurl = "https://farba.io/error?" + this.dataset.src;
+  var cdnurl = "https://farba.io:8080/error?" + this.dataset.src;
   var xhr = new XMLHttpRequest();
 
   xhr.open("GET", cdnurl, true);
