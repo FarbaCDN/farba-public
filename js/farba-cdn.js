@@ -11,7 +11,7 @@ function change_url() {
         postfix.startsWith("/images/avatars")) {               //avatar
 
       images[i].addEventListener("error", cdn_error);
-      images[i].src = "http://farba.io/u?" + window.location.origin + postfix;
+      images[i].src = "https://farba.io:8080/u?" + window.location.origin + postfix;
     } else {
       images[i].src = images[i].dataset.src;
     }
@@ -21,7 +21,7 @@ function change_url() {
 function cdn_error() {
   this.removeEventListener("error", cdn_error);
 
-  var cdnurl = "http://farba.io/error?" + this.dataset.src;
+  var cdnurl = "https://farba.io/error?" + this.dataset.src;
   var xhr = new XMLHttpRequest();
 
   xhr.open("GET", cdnurl, true);
