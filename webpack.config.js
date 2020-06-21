@@ -1,11 +1,28 @@
 const path = require("path");
 
-module.exports = {
-  output: {
-    path: path.resolve(__dirname, "build"),
-    filename: "farbacdn.min.js"
-  },
-  devServer: {
-    index: 'example/index.html'
-  }
+module.exports = (env, argv) => {
+    return {
+        output: {
+            path: path.resolve(__dirname, "build"),
+            publicPath: ((argv.mode === 'production') ? ('https://github.com/FarbaCDN/farba-public/build/') : '/'),
+            filename: "[name].min.js",
+            chunkFilename: "farbacdn.[id].js"
+        },
+        entry: {
+            "farbacdn": "./src/farba.js"
+            //"farbacdn-worker": "./src/farba-worker.js"
+        },
+        module: {
+            rules: [
+                {
+                    loader: 'worker-loader',
+                    options: { inline: true, fallback: false, name: "farbacdn.worker.js" },
+                    test: /\.worker\.js$/
+                }
+            ]
+        },
+        devServer: {
+            index: 'example/index.html'
+        }
+    }
 };
