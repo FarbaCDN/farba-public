@@ -27,7 +27,8 @@ function processFarbaClassElements(predicate){
         processFarbaElement(element, 
             {
                 passthough: loadFromOrigin,
-                verify: true
+                verify: true,
+                asynchronously: true
             });
     };
 }
@@ -44,43 +45,52 @@ function processFarbaElement(element, how){
         element.addEventListener("error", cdnError);
         const url = new URL(element.dataset.src, window.location.href);
         if(how.verify) {
-            var xhr=new XMLHttpRequest();
-            xhr.onerror = (e) => { 
-                console.error("Failed to fetch resource details from FarbaCDN for "+url+": "+e);
+            var xhrDetails=new XMLHttpRequest();
+            xhrDetails.onerror = (e) => { 
+                console.warn("Failed to fetch resource details from FarbaCDN for "+url+": "+e);
                 cdnHandleError(element);
             };
-            xhr.onreadystatechange = () => {
-                if(xhr.readyState != XMLHttpRequest.DONE || xhr.status!=200){
+            xhrDetails.onreadystatechange = () => {
+                if(xhrDetails.readyState != XMLHttpRequest.DONE || xhrDetails.status!=200){
                     return;
                 }
-                const v=xhr.responseText;
-                const jdetails=JSON.parse(v);
-                var xhr1=new XMLHttpRequest();
-                xhr1.responseType = "arraybuffer";
-                xhr1.onreadystatechange = () => {
-                    if(xhr1.readyState != XMLHttpRequest.DONE || xhr1.status!=200){
+                const jdetails=JSON.parse(xhrDetails.responseText);
+                var xhrBody=new XMLHttpRequest();
+                xhrBody.responseType = "arraybuffer";
+                xhrBody.onreadystatechange = () => {
+                    if(xhrBody.readyState != XMLHttpRequest.DONE || xhrBody.status!=200){
                         return;
                     }
-                    const a=new Uint8Array(xhr1.response);
-                    const b=new Blob([a]);
-                    const dgst=sha1(a);
-                    if(jdetails.digest == dgst){
-                        console.log("Digest matched for "+url+": "+dgst);
-                        element.src=URL.createObjectURL(b);
+                    const a=new Uint8Array(xhrBody.response);
+                    if(how.asynchronously){
+                        element.dataset.farbaWorkerRequestSequenceNumber=++farbaWorkerRequestSequenceNumber;
+                        worker.postMessage({
+                            data: a, 
+                            requestSequenceNumber: farbaWorkerRequestSequenceNumber, 
+                            received: jdetails
+                        });
                     }
                     else{
-                        cdnHandleError(element);
+                        const dgst=sha1(a);
+                        if(jdetails.digest == dgst){
+                            console.debug("Digest matched for " + url + ": " + dgst + " == " + jdetails.digest);
+                            const b=new Blob([a]);
+                            element.src=URL.createObjectURL(b);
+                        }
+                        else{
+                            cdnHandleError(element);
+                        }
                     }
                 };
-                xhr1.onerror = (e) => { 
-                    console.error("Failed to fetch resource details from FarbaCDN for "+url+": "+e);
+                xhrBody.onerror = (e) => { 
+                    console.warn("Failed to fetch resource details from FarbaCDN for "+url+": "+e);
                     cdnHandleError(element);
                 };
-                xhr1.open("GET", jdetails.url);
-                xhr1.send();
+                xhrBody.open("GET", jdetails.location);
+                xhrBody.send();
             };
-            xhr.open("GET", farbacdnUserDetailsURL(url.href), true);
-            xhr.send();
+            xhrDetails.open("GET", farbacdnUserDetailsURL(url.href), true);
+            xhrDetails.send();
         }
         else { // redirect
             element.src = farbacdnUserRedirectURL(url.href);
@@ -106,10 +116,32 @@ function cdnError() {
   
 
 export default function main() {
-    console.log("in MAIN");
-    worker.postMessage("foobar");
-
+    console.debug("This is FarbaCDN client-side script");
     processFarbaClassElements();
 }
+
+var farbaWorkerRequestSequenceNumber=0;
+
+worker.addEventListener("message", (x) => {
+    const e=x.data;
+    console.debug("Received message in MAIN THREAD: ", e.requestSequenceNumber);
+
+    var elements = document.getElementsByClassName("farba");
+    for(const element of elements) {
+        if(element.dataset.farbaWorkerRequestSequenceNumber==e.requestSequenceNumber){
+            if(e.computed.size == e.received.size && e.computed.digest == e.received.digest){
+                console.debug("Digest matched for "+e.received.location+": "+e.computed.digest+ " == "+e.received.digest);
+                const b=new Blob([e.data]);
+                element.src=URL.createObjectURL(b);
+            }
+            else{
+                e.data="(array of size "+e.data.length+")";
+                console.warn("Digest or size mismatched: ", e);
+                cdnHandleError(element);
+            }
+            break;
+        }
+    }
+});
 
 document.addEventListener("DOMContentLoaded", main);
