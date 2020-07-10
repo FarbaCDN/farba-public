@@ -4,7 +4,7 @@ module.exports = (env, argv) => {
     return {
         output: {
             path: path.resolve(__dirname, "build"),
-            publicPath: ((argv.mode === 'production') ? ('https://raw.githubusercontent.com/FarbaCDN/farba-public/master/build/') : '/'),
+            publicPath: ((argv.mode === 'production') ? ('https://farbacdn.github.io/farba-public/build/') : '/'),
             filename: "[name].min.js",
             chunkFilename: "farbacdn.[id].js"
         },
