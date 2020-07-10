@@ -11,10 +11,10 @@ function farbacdnUserRedirectURL(src){
     return FARBACDN_URL + "/u?" + src;
 }
 function farbacdnUserDetailsURL(src){
-    //return FARBACDN_URL + "/v?" + src;
-    const u = new URL(src);
-    const uu = new URL(u.pathname+".v__", u.href);
-    return uu.href;
+    return FARBACDN_URL + "/v?" + src;
+    //const u = new URL(src);
+    //const uu = new URL(u.pathname+".v__", u.href);
+    //return uu.href;
 }
 
 const worker=new Worker();
