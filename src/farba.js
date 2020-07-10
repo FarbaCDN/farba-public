@@ -1,5 +1,5 @@
 import sha1 from 'js-sha1';
-import Worker from 'worker-loader!./farba-worker.js';
+import Worker from 'worker-loader?inline=true!./farba-worker.js';
 
 const FARBACDN_URL = "https://farba.io:8080";
 
