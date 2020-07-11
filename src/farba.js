@@ -99,7 +99,8 @@ function processFarbaElement(element, how){
 }
 
 function cdnHandleError(element){
-    const cdnurl = farbacdnErrorURL(element.dataset.src);
+    const url = new URL(element.dataset.src, window.location.href);
+    const cdnurl = farbacdnErrorURL(url.href);
     var xhr = new XMLHttpRequest();
 
     xhr.open("GET", cdnurl, true);
