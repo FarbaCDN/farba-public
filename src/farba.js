@@ -98,16 +98,17 @@ function processFarbaElement(element, how){
     }
 }
 
-function cdnHandleError(element){
-    const url = new URL(element.dataset.src, window.location.href);
-    const cdnurl = farbacdnErrorURL(url.href);
-    var xhr = new XMLHttpRequest();
+function cdnHandleError(element, dontReport){
+    if(!dontReport){
+        const url = new URL(element.dataset.src, window.location.href);
+        const cdnurl = farbacdnErrorURL(url.href);
+        var xhr = new XMLHttpRequest();
 
-    xhr.open("GET", cdnurl, true);
-    xhr.send();
+        xhr.open("GET", cdnurl, true);
+        xhr.send();
+    }
   
     element.src = element.dataset.src;
-
 }
 
 function cdnError() {
@@ -136,9 +137,12 @@ worker.addEventListener("message", (x) => {
                 element.src=URL.createObjectURL(b);
             }
             else{
-                e.data="(array of size "+e.data.length+")";
-                console.warn("Digest or size mismatched: ", e);
-                cdnHandleError(element);
+                let doReport = e.received && e.received.digest;
+                if(doReport){
+                    e.data="(array of size "+e.data.length+")";
+                    console.warn("Digest or size mismatched: ", e);
+                }
+                cdnHandleError(element, !doReport);
             }
             break;
         }
