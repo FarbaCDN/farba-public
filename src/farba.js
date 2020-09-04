@@ -51,14 +51,24 @@ function processFarbaElement(element, how){
                 cdnHandleError(element);
             };
             xhrDetails.onreadystatechange = () => {
-                if(xhrDetails.readyState != XMLHttpRequest.DONE || xhrDetails.status!=200){
+                if(xhrDetails.readyState != XMLHttpRequest.DONE){
+                    return;
+                } 
+                if(xhrDetails.status!=200){
+                    console.warn("Failed to fetch resource details from FarbaCDN for "+url+": status code was "+xhrDetails.status);
+                    cdnHandleError(element);
                     return;
                 }
                 const jdetails=JSON.parse(xhrDetails.responseText);
                 var xhrBody=new XMLHttpRequest();
                 xhrBody.responseType = "arraybuffer";
                 xhrBody.onreadystatechange = () => {
-                    if(xhrBody.readyState != XMLHttpRequest.DONE || xhrBody.status!=200){
+                    if(xhrBody.readyState != XMLHttpRequest.DONE){
+                        return;
+                    } 
+                    if(xhrBody.status!=200){
+                        console.warn("Failed to fetch resource details from FarbaCDN for "+url+": status code was "+xhrDetails.status);
+                        cdnHandleError(element);
                         return;
                     }
                     const a=new Uint8Array(xhrBody.response);
