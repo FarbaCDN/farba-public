@@ -6,7 +6,11 @@ module.exports = (env, argv) => {
             path: path.resolve(__dirname, "build"),
             publicPath: ((argv.mode === 'production') ? ('https://farbacdn.github.io/farba-public/build/') : '/'),
             filename: "[name].min.js",
-            chunkFilename: "farbacdn.[id].js"
+            chunkFilename: "farbacdn.[id].js",
+
+            library: 'farbacdn',
+            libraryTarget: 'window',
+            libraryExport: 'default'            
         },
         entry: {
             "farbacdn": "./src/farba.js"

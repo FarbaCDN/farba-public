@@ -19,12 +19,12 @@ function farbacdnUserDetailsURL(src){
 
 const worker=new Worker();
 
-function processFarbaClassElements(predicate){
+function processAllElements(predicate){
     var elements = document.getElementsByClassName("farba");
     for(const element of elements) {
         const loadFromOrigin = predicate && !predicate(element.dataset.src);
 
-        processFarbaElement(element, 
+        processElement(element, 
             {
                 passthough: loadFromOrigin,
                 verify: true,
@@ -33,7 +33,7 @@ function processFarbaClassElements(predicate){
     };
 }
 
-function processFarbaElement(element, how){
+function processElement(element, how){
     var passthough = false;
     if(how){
         passthough = how.passthough;
@@ -130,12 +130,12 @@ function cdnError() {
 }
   
 
-export default function main() {
-    console.debug("This is FarbaCDN client-side script");
-    processFarbaClassElements();
+function main() {
+    console.debug("This is FarbaCDN client-side script v1.0.4");
+    processAllElements();
 }
 
-export { processFarbaElement };
+export default { processElement, processAllElements };
 
 var farbaWorkerRequestSequenceNumber=0;
 
