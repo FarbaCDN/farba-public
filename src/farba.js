@@ -38,6 +38,9 @@ function processFarbaElement(element, how){
     if(how){
         passthough = how.passthough;
     }
+    else{
+        how = { verify: true, asynchronously: true };
+    }
     if(passthough){
         element.src = element.dataset.src;
     }
@@ -131,6 +134,8 @@ export default function main() {
     console.debug("This is FarbaCDN client-side script");
     processFarbaClassElements();
 }
+
+export { processFarbaElement };
 
 var farbaWorkerRequestSequenceNumber=0;
 
