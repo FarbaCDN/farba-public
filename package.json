@@ -1,6 +1,6 @@
 {
   "name": "farba-public",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Client library for using FarbaCDN",
   "repository": "https://github.com/FarbaCDN/farba-public",
   "author": "FarbaCDN",

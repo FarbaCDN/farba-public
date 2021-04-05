@@ -3,6 +3,7 @@ import Worker from 'worker-loader?inline=true!./farba-worker.js';
 
 const FARBACDN_URL = "https://farba.io:8080";
 
+import { version } from '../package.json';
 
 function farbacdnErrorURL(src){
     return FARBACDN_URL + "/error?" + src;
@@ -63,6 +64,12 @@ function processElement(element, how){
                     return;
                 }
                 const jdetails=JSON.parse(xhrDetails.responseText);
+                if(!jdetails.digest){
+                    // digest wasn't received, therefore it cannot be verified.
+                    // load the image from specified location (which is probably the origin).
+                    element.src = jdetails.location;
+                    return;
+                }
                 var xhrBody=new XMLHttpRequest();
                 xhrBody.responseType = "arraybuffer";
                 xhrBody.onreadystatechange = () => {
@@ -131,7 +138,7 @@ function cdnError() {
   
 
 function main() {
-    console.debug("This is FarbaCDN client-side script v1.0.4");
+    console.debug("This is FarbaCDN client-side script v."+version);
     processAllElements();
 }
 
